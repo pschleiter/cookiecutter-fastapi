@@ -1,0 +1,155 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+####################
+# Project Metadata #
+####################
+
+[project]
+name = "{{cookiecutter.pkg_name }}"
+description = "{{ cookiecutter.project_description }}"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+    { name = "{{ cookiecutter.author_name }}", email = "{{ cookiecutter.author_mail }}" },
+]
+dependencies = [
+    "fastapi",
+    "pydantic_settings",
+    "fastapi-keycloak-middleware",
+    "sqlalchemy",
+    "asyncpg",
+    "itsdangerous",
+]
+dynamic = ["version"]
+
+######################
+# Build & Versioning #
+######################
+
+[tool.hatch.version]
+path = "src/{{ cookiecutter.pkg_name }}/__about__.py"
+
+[tool.hatch.build]
+packages = ["src/{{ cookiecutter.pkg_name }}"]
+
+##################
+# External Tools #
+##################
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --doctest-glob='*.md'"
+testpaths = [
+    "tests",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["src/{{ cookiecutter.pkg_name }}"]
+
+[tool.coverage.paths]
+source = [
+    "src/",
+    "*/site-packages/",
+]
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_lines = [
+    # Have to re-enable the standard pragma
+    "pragma: no cover",
+
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+    "if self\\.debug",
+
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.ruff]
+target-version = "py312"
+indent-width = 4
+include = [
+    "src/**/*.py",
+    "src/**/*.pyi",
+    "tests/**/*.py",
+    "tests/**/*.pyi"
+]
+
+[tool.ruff.lint]
+unfixable = [
+    "F401",
+]
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint.isort]
+known-first-party = ["api"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.per-file-ignores]
+# Allow print/pprint
+"examples/*" = ["T201"]
+# Tests can use magic values, assertions, and relative imports
+"tests/**/*" = ["PLR2004", "S101", "TID252"]
+
+
+#####################
+# Environment Setup #
+#####################
+
+[tool.hatch.env]
+requires = ["hatch-pip-compile~=1.11.2"]
+
+# Default environment with production dependencies
+[tool.hatch.envs.default]
+python = "3.12"
+post-install-commands = ["pre-commit install"]
+type = "pip-compile"
+pip-compile-constraint = "default"  # keep locks between default & others consistent
+lock-filename = "locks/{env_name}.lock"
+pip-compile-hashes = false  # no hashes in lock files
+dependencies = [
+    "uvicorn"
+]
+
+[tool.hatch.envs.default.scripts]
+upgrade-all = "PIP_COMPILE_UPGRADE=1 hatch env run --env {env_name} -- python --version"
+upgrade-pkg = "PIP_COMPILE_UPGRADE_PACKAGE='{args}' hatch env run --env {env_name} -- python --version"
+
+# Test environment with test-only dependencies
+[tool.hatch.envs.test]
+python = "3.12"
+dependencies = [
+    # required test dependencies
+    "coverage[toml]>=6.2",
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "pytest-vcr",
+    "pytest-sugar",
+]
+[tool.hatch.envs.test.scripts]
+cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src/{{ cookiecutter.pkg_name }} --cov=tests {args}"
+no-cov = "cov --no-cov {args}"
+debug =  "cov --no-cov -s --pdb --pdbcls=IPython.core.debugger:Pdb {args}"
+
+# Format environment
+[tool.hatch.envs.hatch-static-analysis]
+config-path = "pyproject.toml"
+dependencies = ["ruff==0.6.3"]

@@ -1,0 +1,8 @@
+{
+    "project_name": "FastAPI Backend",
+    "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
+    "pkg_name": "api",
+    "project_description": "Short description of your api.",
+    "author_name": "John Doe",
+    "author_mail": "john.doe@test.com"
+}
