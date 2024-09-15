@@ -126,10 +126,11 @@ pip-compile-constraint = "default"  # keep locks between default & others consis
 lock-filename = "locks/{env_name}.lock"
 pip-compile-hashes = false  # no hashes in lock files
 dependencies = [
-    "uvicorn"
+    "fastapi[standard]",
 ]
 
 [tool.hatch.envs.default.scripts]
+api = "fastapi dev --reload src/{{ cookiecutter.pkg_name }}/asgi.py"
 upgrade-all = "PIP_COMPILE_UPGRADE=1 hatch env run --env {env_name} -- python --version"
 upgrade-pkg = "PIP_COMPILE_UPGRADE_PACKAGE='{args}' hatch env run --env {env_name} -- python --version"
 
