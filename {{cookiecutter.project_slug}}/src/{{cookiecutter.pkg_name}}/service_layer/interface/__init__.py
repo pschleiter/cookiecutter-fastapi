@@ -13,7 +13,7 @@ class AbstractUnitOfWork(abc.ABC):
         await self.rollback()
 
     async def commit(self):
-        self._commit()
+        await self._commit()
 
     @abc.abstractmethod
     async def _commit(self):
