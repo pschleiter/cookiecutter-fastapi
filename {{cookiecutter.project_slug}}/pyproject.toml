@@ -18,6 +18,7 @@ dependencies = [
     "fastapi",
     "pydantic_settings",
     "fastapi-keycloak-middleware",
+    "sqlmodel",
     "sqlalchemy",
     "asyncpg",
     "itsdangerous",

@@ -1,7 +1,6 @@
-from pydantic import BaseModel
+from sqlmodel import SQLModel
 
 
-class Dummy(BaseModel):
-    id: int
+class Dummy(SQLModel):
     name: str
     nickname: str | None = None

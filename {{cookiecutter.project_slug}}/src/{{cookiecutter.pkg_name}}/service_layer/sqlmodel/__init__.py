@@ -1,26 +1,28 @@
 import asyncio
 
 from sqlalchemy.ext.asyncio import (
-    AsyncSession,
     async_scoped_session,
     async_sessionmaker,
     create_async_engine,
 )
+from sqlmodel.ext.asyncio.session import AsyncSession
 
-from {{ cookiecutter.pkg_name }}.adapters.sqlalchemy import repository as sql_repository
+from {{ cookiecutter.pkg_name }}.adapters.sqlmodel import repository as sql_repository
 from {{ cookiecutter.pkg_name }}.service_layer.interface import AbstractUnitOfWork
 
 
-class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
+class SqlModelUnitOfWork(AbstractUnitOfWork):
     def __init__(self, db_uri: str):
-        self.session_factory = async_sessionmaker(bind=create_async_engine(db_uri))
-
-    async def __aenter__(self) -> AbstractUnitOfWork:
-        self.session: AsyncSession = async_scoped_session(
-            session_factory=self.session_factory,
+        self.session_factory = async_scoped_session(
+            session_factory=async_sessionmaker(
+                bind=create_async_engine(db_uri), class_=AsyncSession
+            ),
             scopefunc=asyncio.current_task,
         )
-        self.repository = sql_repository.SqlAlchemyRepository(session=self.session)
+
+    async def __aenter__(self) -> AbstractUnitOfWork:
+        self.session: AsyncSession = self.session_factory()
+        self.repository = sql_repository.SqlModelRepository(session=self.session)
         return await super().__aenter__()
 
     async def __aexit__(self, *args) -> None:

@@ -18,9 +18,9 @@ def create_api(
         config = Config()
 
     if uow is None:
-        from {{ cookiecutter.pkg_name }}.service_layer.sqlalchemy import SqlAlchemyUnitOfWork  # PLC0415
+        from {{ cookiecutter.pkg_name }}.service_layer.sqlmodel import SqlModelUnitOfWork  # PLC0415
 
-        uow = SqlAlchemyUnitOfWork(
+        uow = SqlModelUnitOfWork(
             db_uri=config.database_uri,
         )
 
